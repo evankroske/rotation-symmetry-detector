@@ -18,6 +18,9 @@ function rss_value = sym_rss_point (im, x, y, n)
 
 	rss_value = 0;
 	fep = sym_frieze_expand(im, x, y, n);
+	if length(fep) == 0
+		return;
+	end
 	dft_coeffs = cellfun(@(row) (fft(row)), fep, 'UniformOutput', false);
 	esd = energy_spectral_density(dft_coeffs);
 	k_peaks = dominant_frequencies(esd);

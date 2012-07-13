@@ -7,7 +7,7 @@ function rss_value = sym_rss_point (im, x, y, n)
 	end
 
 	function k_peaks = dominant_frequencies (esd)
-		half = floor(length(esd{1}) / 2);
+		half = floor(n / 2);
 		k_peaks = cellfun( ...
 			@(row) (row >= ...
 				mean(row(2:half)) + ...
@@ -17,8 +17,10 @@ function rss_value = sym_rss_point (im, x, y, n)
 	end
 
 	function x = row_rss_value (k_peaks_r, esd_r)
-		if any(esd_r)
-			x = mean(esd_r(k_peaks_r)) / mean(esd_r);
+		if any(esd_r) && any(k_peaks_r)
+			a = 1:n;
+			x = ~any(mod(a(k_peaks_r), min(a(k_peaks_r)))) * ...
+				mean(esd_r(k_peaks_r)) / mean(esd_r);
 		else
 			x = 0;
 		end

@@ -16,6 +16,14 @@ function rss_value = sym_rss_point (im, x, y, n)
 			'UniformOutput', false);
 	end
 
+	function x = row_rss_value (k_peaks_r, esd_r)
+		if any(esd_r)
+			x = mean(esd_r(k_peaks_r)) / mean(esd_r);
+		else
+			x = 0;
+		end
+	end
+
 	rss_value = 0;
 	fep = sym_frieze_expand(im, x, y, n);
 	if length(fep) == 0
@@ -26,8 +34,7 @@ function rss_value = sym_rss_point (im, x, y, n)
 	k_peaks = dominant_frequencies(esd);
 	rss_value = sum(cell2mat( ...
 		cellfun( ...
-			@(k_peaks_r, esd_r) ( ...
-				mean(esd_r(k_peaks_r)) / mean(esd_r)), ...
+			@row_rss_value, ...
 			k_peaks, ...
 			esd, ...
 			'UniformOutput', false)));

@@ -25,7 +25,9 @@ function out = sym_log_polar (image, x, y, radius, n_radials)
 				j = j + 1;
 			end
 		end
-		indices = [indices length(c) - 1];
+		if length(indices) < radius
+			indices = [indices length(c) - 1];
+		end
 		n_buckets = max_step - 1;
 	end
 

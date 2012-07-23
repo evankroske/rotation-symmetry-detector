@@ -1,21 +1,26 @@
-function out = sym_log_polar (image, x, y, radius, n_radials)
+function out = sym_log_polar (image, x, y, radius, n_radials, n_rings, ...
+	log_width)
 % Produce log-polar representation of a point in an image
 
-	out = {};
+	if nargin < 7
+		log_width = radius;
+	end
+	if nargin < 6
+		n_rings = floor(radius / 3);
+	end
+
+	out = [];
 	angle_step = 2 * pi / n_radials;
 	angles = 0:angle_step:2 * pi - angle_step;
 
-	function [indices, n_buckets] = calc_sample_bucket_indices (n_samples, n_buckets, width)
-		max_step = 1;
-		while log(factorial(max_step)) < n_samples - 1
-			max_step = max_step + 1;
-		end
-		upper_bound = log(factorial(max_step));
-		sample_values = 0:upper_bound / (radius - 1): ...
-			upper_bound;
-		a = 1:max_step;
+	function indices = calc_sample_bucket_indices (n_samples, n_buckets, width)
+		a = 1:width / n_buckets:1 + width;
 		b = log(a);
 		c = cumsum(b);
+
+		upper_bound = max(c);
+		sample_values = 0:upper_bound / (n_samples - 1): ...
+			upper_bound;
 		indices = [];
 		j = 1;
 		for i = 1:length(c) - 1
@@ -25,10 +30,9 @@ function out = sym_log_polar (image, x, y, radius, n_radials)
 				j = j + 1;
 			end
 		end
-		if length(indices) < radius
+		if length(indices) < n_samples
 			indices = [indices length(c) - 1];
 		end
-		n_buckets = max_step - 1;
 	end
 
 	function output = log_improfile (d_x, d_y)
@@ -38,14 +42,8 @@ function out = sym_log_polar (image, x, y, radius, n_radials)
 			round(x + steps * d_x));
 		samples = image(sample_indices);
 
-
-		%min_step = steps(2);
-		%max_step = steps(radius);
-		%bucket_indices = [1 floor((log(steps(2:radius)) - log(min_step)) / ...
-			%(log(max(steps)) - log(min_step)) * n_rings - 2) + 2];
-		[bucket_indices, n_buckets] = calc_sample_bucket_indices(radius);
-		
-		buckets = cell(1, n_buckets);
+		bucket_indices = calc_sample_bucket_indices(radius, n_rings, log_width);
+		buckets = cell(1, n_rings);
 		buckets(:) = {[]};
 		for i = 1:radius
 			buckets{bucket_indices(i)} = [buckets{bucket_indices(i)} ...
@@ -54,9 +52,9 @@ function out = sym_log_polar (image, x, y, radius, n_radials)
 		output = transpose(cellfun(@mean, buckets));
 	end
 
-	out = cell2mat(arrayfun( ...
+	out = uint8(cell2mat(arrayfun( ...
 		@log_improfile, ...
 		cos(angles), ...
 		sin(angles), ...
-		'UniformOutput', false));
+		'UniformOutput', false)));
 end

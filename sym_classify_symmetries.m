@@ -21,7 +21,9 @@ function symmetries = sym_classify_symmetries (image, x, y, n)
 		'UniformOutput', false);
 	esd = sym_esd(dft_coeffs);
 	k_peaks = sym_dominant_frequencies(esd, 2);
-	[rings, ring_num_lobes] = sym_segment_by_freq(k_peaks, esd);
+	[rings, ring_num_lobes] = sym_segment_by_freq( ...
+		transpose(cell2mat(k_peaks)), ...
+		transpose(cell2mat(esd)));
 	ring_min_width = 5;
 	wide_ring_mask = cellfun(@(ring) length(ring) > 5, rings);
 

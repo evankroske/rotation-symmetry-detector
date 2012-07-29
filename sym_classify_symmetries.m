@@ -16,14 +16,13 @@ function symmetries = sym_classify_symmetries (image, x, y, n)
 
 	half = ceil(n / 2);
 	fep = sym_frieze_expand(image, x, y, n);
-	subvector = @(v, i) v(i);
-	dft_coeffs = cellfun(@(row) subvector(fft(row), 1:half), fep, ...
-		'UniformOutput', false);
-	esd = sym_esd(dft_coeffs);
+	dft = fft(fep);
+	dft_half = dft(1:half, :);
+	esd = sym_esd(dft_half);
 	k_peaks = sym_dominant_frequencies(esd, 2);
 	[rings, ring_num_lobes] = sym_segment_by_freq( ...
-		transpose(cell2mat(k_peaks)), ...
-		transpose(cell2mat(esd)));
+		k_peaks, ...
+		esd);
 	ring_min_width = 5;
 	wide_ring_mask = cellfun(@(ring) length(ring) > 5, rings);
 
@@ -33,7 +32,7 @@ function symmetries = sym_classify_symmetries (image, x, y, n)
 		min_radius = min(rings{i}) - 1;
 		max_radius = max(rings{i}) - 1;
 		if ring_num_lobes(i) > 0
-			if is_dihedral(transpose(cell2mat(fep(rings{i}))), ...
+			if is_dihedral(fep(:, rings{i}), ...
 				ring_num_lobes(i), 0.2)
 				symmetries(j).type = 'dihedral';
 			else

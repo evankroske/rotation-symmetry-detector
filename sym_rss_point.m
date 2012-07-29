@@ -3,6 +3,10 @@ function rss_value = sym_rss_point (im, x, y, n)
 
 	half = ceil(n / 2);
 
+	function x = cellify (mat)
+		x = mat2cell(mat, size(mat, 1), ones(1, size(mat, 2)));
+	end
+
 	function x = row_rss_value (k_peaks_r, esd_r)
 		if any(k_peaks_r)
 			a = 0:half - 1;
@@ -24,14 +28,14 @@ function rss_value = sym_rss_point (im, x, y, n)
 	if length(fep) == 0
 		return;
 	end
-	dft_coeffs = cellfun(@(row) subvector(fft(row), 1:half), fep, ...
-		'UniformOutput', false);
-	esd = sym_esd(dft_coeffs);
+	dft = fft(fep);
+	dft_half = dft(1:half, :);
+	esd = sym_esd(dft_half);
 	k_peaks = sym_dominant_frequencies(esd);
 	rss_value = sum(cell2mat( ...
 		cellfun( ...
 			@row_rss_value, ...
-			k_peaks, ...
-			esd, ...
+			cellify(k_peaks), ...
+			cellify(esd), ...
 			'UniformOutput', false)));
 end

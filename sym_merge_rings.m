@@ -10,7 +10,6 @@ function [segments, segments_num_lobes] = sym_merge_rings (rings, ...
 	segments_num_lobes = ring_num_lobes;
 	i = 1;
 	j = 2;
-	a = 0:size(k_peaks, 1);
 	while j <= length(segments)
 		if segments_num_lobes(i) > segments_num_lobes(j)
 			big = i;

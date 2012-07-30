@@ -29,6 +29,8 @@ function [rings, ring_indices, ring_num_lobes] = ...
 			ring_indices(j) = i;
 			rings{i} = [rings{i} j];
 			last_num_lobes = num_lobes;
+		else
+			last_num_lobes = -1;
 		end
 		j = j + 1;
 	end
